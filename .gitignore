@@ -1,0 +1,10 @@
+# Do not track the content of these folders
+dataset
+
+
+
+# Do not tract these compiled source
+
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user

@@ -17,15 +17,19 @@ CLASSIFICATION::Classification::Classification() {};
 CLASSIFICATION::Classification::~Classification() {};
 
 // read content of directory
-void CLASSIFICATION::Classification::readDataset(const string directory_name) {
+void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
 	string line;
 	DIR *dir = opendir(directory_name.c_str()); // opens directory
 	struct dirent *dp;
 	while ((dp = readdir(dir)) != NULL) {
-		cout << dp -> d_name << endl;
-		if(dp->d_name == "." || dp->d_name == "..")
-			continue;
-		readImages(dp->d_name, directory_name);
+
+		string filename = dp->d_name;
+		if(filename == "." || filename == "..") {
+			continue;	
+		}
+		else {
+		readImages(filename, directory_name);
+	}
 
 	}
 	closedir(dir);
@@ -36,10 +40,9 @@ void CLASSIFICATION::Classification::readDataset(const string directory_name) {
 // read binary images in the dataset/Gradient_Numbers_PPMS
 void CLASSIFICATION::Classification::readImages(const string &image_name, const string &directoryname) {
 
-	string path = "." + directoryname + "/" + image_name; // image file path
-	cout << path << endl;
+	string path = directoryname + "/" + image_name; // image file path;
 
-	ifstream image_file(image_name.c_str(), ios::in | ios::binary);
+	ifstream image_file(path.c_str(), ios::in | ios::binary);
 
 	string header; // ppm file header
 

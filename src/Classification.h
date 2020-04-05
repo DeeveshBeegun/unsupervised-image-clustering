@@ -25,7 +25,7 @@ namespace CLASSIFICATION {
 		void readDataset(const std::string directory_name);
 
 		// reads images in the directory
-		void readImages(const std::string image_names, const std::string directory_name);
+		void readImages(const std::string &image_names, const std::string &directory_name);
 
 
 

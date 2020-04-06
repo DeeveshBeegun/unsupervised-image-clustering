@@ -43,11 +43,10 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 	string path = directoryname + "/" + image_name; // image file path;
 
 	ifstream image_file(path.c_str(), ios::in | ios::binary);
-
 	string header; // ppm file header
-
 	int rows, cols; // rows and columns of images
-
+	IMAGE::Image image;
+	
 	if(image_file.is_open()) {
 
 		getline(image_file, header);
@@ -67,8 +66,6 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		dimensions >> rows >> cols; // rows and columns making up the image matrix i.e matrix dimensions.
 
 
-		IMAGE::Image image;
-
 		image.width = rows; // width of image
 		image.height = cols; // height of image
 
@@ -80,19 +77,39 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		image.pixels = new IMAGE::Image::Rgb[rows * cols]; 
 
 		unsigned char pixel_float[3]; // stores the converted bytes to float
+		int pixels_intensities[image.size]; // array to store greyscale intensities
 
 		for(int i = 0; i < image.size; i++) {
 			
 			image_file.read((char *)pixel_float, 3);
 
-			image.pixels[i].red = pixel_float[0] / 255.f;
-			image.pixels[i].green = pixel_float[1] / 255.f;
-			image.pixels[i].blue = pixel_float[2] / 255.f;
+			image.pixels[i].red = pixel_float[0];
+			image.pixels[i].green = pixel_float[1];
+			image.pixels[i].blue = pixel_float[2];
+
+			int greyscaleImage = convert_to_greyscale(image.pixels[i].red, image.pixels[i].green, image.pixels[i].blue);
+
+			pixels_intensities[i] = greyscaleImage; // populate array with the greyscale intensities
 
 		}
-
+		build_histogram(pixels_intensities, image);
 		image_file.close();
  
 	}
+	
 
 }
+	
+	// converts a rgb image into greyscale image
+	float CLASSIFICATION::Classification::convert_to_greyscale(float red, float green, float blue) { 
+		return (0.21*red + 0.72*green + 0.07*blue); 
+	}
+
+	// build histogram for pixels intensities
+	void CLASSIFICATION::Classification::build_histogram(int *pixels_intensities, IMAGE::Image image) {
+		cout << "Image size: " << image.size << endl;
+		for(int i = 0; i < image.size-1; i++) {
+			cout << pixels_intensities[i] << endl;
+		}
+
+	}

@@ -7,6 +7,8 @@
 #include <fstream>
 #include "Image.h"
 #include <sstream>
+#include <array>
+#include <vector>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
 	struct dirent *dp;
 	while ((dp = readdir(dir)) != NULL) {
 
-		string filename = dp->d_name;
+		string filename = dp->d_name; // name of image file in directory
 		if(filename == "." || filename == "..") {
 			continue;	
 		}
@@ -72,12 +74,14 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		image.size = rows * cols; // size of image
 
 		getline(image_file, header);
-		//int max_value = stoi(header); // maximum value of the pixels
+		int max_value = stoi(header); // maximum value of the pixels
+		image.max_value = max_value;
 
 		image.pixels = new IMAGE::Image::Rgb[rows * cols]; 
 
 		unsigned char pixel_float[3]; // stores the converted bytes to float
 		int pixels_intensities[image.size]; // array to store greyscale intensities
+		
 
 		for(int i = 0; i < image.size; i++) {
 			
@@ -92,10 +96,11 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 			pixels_intensities[i] = greyscaleImage; // populate array with the greyscale intensities
 
 		}
+
 		build_histogram(pixels_intensities, image);
-		image_file.close();
  
 	}
+	image_file.close();
 	
 
 }
@@ -106,10 +111,7 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 	}
 
 	// build histogram for pixels intensities
-	void CLASSIFICATION::Classification::build_histogram(int *pixels_intensities, IMAGE::Image image) {
-		cout << "Image size: " << image.size << endl;
-		for(int i = 0; i < image.size-1; i++) {
-			cout << pixels_intensities[i] << endl;
-		}
+	void CLASSIFICATION::Classification::build_histogram(const int *pixels_intensities, const IMAGE::Image &image) {
+		
 
 	}

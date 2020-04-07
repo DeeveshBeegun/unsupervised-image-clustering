@@ -32,7 +32,7 @@ namespace CLASSIFICATION {
 		float convert_to_greyscale(float red, float green, float blue);
 
 		// build histogram representation
-		void build_histogram(int *pixels_intensities, IMAGE::Image image);
+		void build_histogram(const int *pixels_intensities, const IMAGE::Image &image);
 
 
 

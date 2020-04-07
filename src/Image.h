@@ -9,7 +9,7 @@ namespace IMAGE {
 	public: // public members
 
 	int width, height; // dimension of image
-	int size;
+	int size, max_value;
 
 	// default constructor
 	Image(); // creates an empty image

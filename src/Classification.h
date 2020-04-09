@@ -9,18 +9,20 @@
 #ifndef _CLASSIFICATION_H
 #define _CLASSIFICATION_H
 
-namespace CLASSIFICATION {
-
-	class Classification {
+namespace CLASSIFICATION {		
 	
-	//private members
+	class Classification {
 		
-
-	// public members
-	public:
+		// public members
+		public: 
+			std::vector<int*> pixels_intensitiesVec;
+			int* pixels_intensities;
+			int* histogram;
+			IMAGE::Image image;
+			int number_of_images = 0;
+	
 		Classification(); // default constructor
 		~Classification(); // destructor
-
 
 		// reads name of images in the directory
 		void readDataset(const std::string &directory_name);
@@ -32,11 +34,14 @@ namespace CLASSIFICATION {
 		float convert_to_greyscale(float red, float green, float blue);
 
 		// build histogram representation
-		void build_histogram(const int *pixels_intensities, const IMAGE::Image &image);
+		void build_histogram(const int bin_size);
 
+		// write output to file
+		void write_output(std::string output_file);
 
 
 	};
+
 
 }
 

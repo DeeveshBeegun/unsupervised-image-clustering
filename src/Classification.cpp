@@ -13,10 +13,18 @@
 using namespace std;
 
 // constructor
-CLASSIFICATION::Classification::Classification() {};
+CLASSIFICATION::Classification::Classification() {
+	std::vector<int*> pixels_intensitiesVec;
+	int * histogram = nullptr;
+	int* pixels_intensities = nullptr;
+	IMAGE::Image image;
+	int number_of_images = 0; // number of images in the directory
+}
 
 // destructor
-CLASSIFICATION::Classification::~Classification() {};
+CLASSIFICATION::Classification::~Classification() {
+	delete[] pixels_intensities;
+}
 
 // read content of directory
 void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
@@ -31,13 +39,13 @@ void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
 		}
 		else {
 		readImages(filename, directory_name);
+		number_of_images++; // increment number of images by 1
 	}
 
 	}
 	closedir(dir);
 
 }
-
 
 // read binary images in the dataset/Gradient_Numbers_PPMS
 void CLASSIFICATION::Classification::readImages(const string &image_name, const string &directoryname) {
@@ -47,7 +55,6 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 	ifstream image_file(path.c_str(), ios::in | ios::binary);
 	string header; // ppm file header
 	int rows, cols; // rows and columns of images
-	IMAGE::Image image;
 	
 	if(image_file.is_open()) {
 
@@ -80,7 +87,7 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		image.pixels = new IMAGE::Image::Rgb[rows * cols]; 
 
 		unsigned char pixel_float[3]; // stores the converted bytes to float
-		int pixels_intensities[image.size]; // array to store greyscale intensities
+		pixels_intensities = new int[image.size]; // array to store greyscale intensities
 		
 
 		for(int i = 0; i < image.size; i++) {
@@ -97,9 +104,11 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 		}
 
-		build_histogram(pixels_intensities, image);
- 
+
+		CLASSIFICATION::Classification::pixels_intensitiesVec.push_back(pixels_intensities);
+
 	}
+
 	image_file.close();
 	
 
@@ -110,8 +119,44 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		return (0.21*red + 0.72*green + 0.07*blue); 
 	}
 
-	// build histogram for pixels intensities
-	void CLASSIFICATION::Classification::build_histogram(const int *pixels_intensities, const IMAGE::Image &image) {
-		
 
-	}
+	// build histogram for pixels intensities
+	void CLASSIFICATION::Classification::build_histogram(const int bin_size) {
+
+		cout << "bin_size: "<< bin_size << endl;
+
+		cout << "Number of images: " << number_of_images << endl;
+
+		int histogram_bin[(image.max_value+1)/bin_size];
+		vector<int*> histogramVec;
+		
+		for(int i = 0; i < number_of_images; i ++) {
+
+			histogram = new int[image.max_value+1];
+
+			// fill histogram array with zeros
+			for(int i = 0; i < image.max_value+1; i++) {
+				histogram[i] = 0;
+			}
+
+			for(int j = 0; j < image.size; j++) {
+				int index = pixels_intensitiesVec[i][j]; // find index of pixel intensity in the histogram array
+				//cout << "index: " << index << " " ;
+				histogram[index] += 1; // increment appropriate location in the histogram array 
+			}
+
+			histogramVec.push_back(histogram);
+			}
+			delete[] histogram;
+
+		for(int i = 0; i < 255; i++) {
+			cout << histogramVec[0][i] << " ";
+
+		}
+			cout << "#####################################" << endl;
+			
+		}
+
+	// write output to file
+	void CLASSIFICATION::Classification::write_output(string output_file) { cout << output_file << endl; }
+

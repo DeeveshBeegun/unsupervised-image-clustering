@@ -1,6 +1,9 @@
 /**
 * Image header file
 */
+
+#include <string>
+
 #ifndef _IMAGE_H
 #define _IMAGE_H
 
@@ -10,6 +13,7 @@ namespace IMAGE {
 
 	int width, height; // dimension of image
 	int size, max_value;
+	std::string name;
 
 	// default constructor
 	Image(); // creates an empty image
@@ -45,6 +49,10 @@ namespace IMAGE {
  	const Rgb &operator [] (const unsigned int &i);
 
  	Rgb *pixels;
+
+ 	int *greyscaleImage;
+
+ 	int *histogram_bin;
 
 	}; 
 

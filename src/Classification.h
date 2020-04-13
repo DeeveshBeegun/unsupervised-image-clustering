@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include "Image.h"
+#include "DataPoints.h"
+#include <memory>
 
 #ifndef _CLASSIFICATION_H
 #define _CLASSIFICATION_H
@@ -15,10 +17,9 @@ namespace CLASSIFICATION {
 		
 		// public members
 		public: 
-			std::vector<int*> pixels_intensitiesVec;
-			int* pixels_intensities;
-			int* histogram;
-			IMAGE::Image image;
+			std::vector<IMAGE::Image> images;
+			std::vector<DataPoints> histogram_points;
+			int* histogram_bin;
 			int number_of_images = 0;
 	
 		Classification(); // default constructor
@@ -38,6 +39,9 @@ namespace CLASSIFICATION {
 
 		// write output to file
 		void write_output(std::string output_file);
+
+		// clusters the data into different cluster centroids
+		void kMeansClusterer();
 
 
 	};

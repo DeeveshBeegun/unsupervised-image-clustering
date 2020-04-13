@@ -9,21 +9,24 @@
 #include <sstream>
 #include <array>
 #include <vector>
+#include "DataPoints.h"
+#include <memory>
+#include <time.h>
 
 using namespace std;
 
 // constructor
 CLASSIFICATION::Classification::Classification() {
-	std::vector<int*> pixels_intensitiesVec;
-	int * histogram = nullptr;
-	int* pixels_intensities = nullptr;
-	IMAGE::Image image;
+	vector<IMAGE::Image> images;
+	vector<DataPoints> histogram_points;
+	int* histogram_bin = nullptr;
 	int number_of_images = 0; // number of images in the directory
 }
 
 // destructor
 CLASSIFICATION::Classification::~Classification() {
-	delete[] pixels_intensities;
+	// delete[] pixels_intensities;
+	// delete[] histogram_bin;
 }
 
 // read content of directory
@@ -40,6 +43,7 @@ void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
 		else {
 		readImages(filename, directory_name);
 		number_of_images++; // increment number of images by 1
+
 	}
 
 	}
@@ -49,7 +53,7 @@ void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
 
 // read binary images in the dataset/Gradient_Numbers_PPMS
 void CLASSIFICATION::Classification::readImages(const string &image_name, const string &directoryname) {
-
+	
 	string path = directoryname + "/" + image_name; // image file path;
 
 	ifstream image_file(path.c_str(), ios::in | ios::binary);
@@ -57,6 +61,11 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 	int rows, cols; // rows and columns of images
 	
 	if(image_file.is_open()) {
+		//unique_ptr<IMAGE::Image> image(new IMAGE::Image);
+
+		IMAGE::Image image;
+
+		image.name = image_name;
 
 		getline(image_file, header);
 		string magicNumber = header; // "p6" ppm file
@@ -74,7 +83,6 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		dimensions << header;
 		dimensions >> rows >> cols; // rows and columns making up the image matrix i.e matrix dimensions.
 
-
 		image.width = rows; // width of image
 		image.height = cols; // height of image
 
@@ -86,9 +94,9 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 		image.pixels = new IMAGE::Image::Rgb[rows * cols]; 
 
+		image.greyscaleImage = new int[image.size];
+
 		unsigned char pixel_float[3]; // stores the converted bytes to float
-		pixels_intensities = new int[image.size]; // array to store greyscale intensities
-		
 
 		for(int i = 0; i < image.size; i++) {
 			
@@ -98,65 +106,122 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 			image.pixels[i].green = pixel_float[1];
 			image.pixels[i].blue = pixel_float[2];
 
-			int greyscaleImage = convert_to_greyscale(image.pixels[i].red, image.pixels[i].green, image.pixels[i].blue);
-
-			pixels_intensities[i] = greyscaleImage; // populate array with the greyscale intensities
+			image.greyscaleImage[i] = convert_to_greyscale(image.pixels[i].red, image.pixels[i].green, image.pixels[i].blue);
 
 		}
+		images.push_back(image); // populate array with the greyscale intensities
 
-
-		CLASSIFICATION::Classification::pixels_intensitiesVec.push_back(pixels_intensities);
+		// delete[] image.pixels;
+		// delete[] image.greyscaleImage;
 
 	}
 
 	image_file.close();
-	
 
 }
 	
-	// converts a rgb image into greyscale image
-	float CLASSIFICATION::Classification::convert_to_greyscale(float red, float green, float blue) { 
-		return (0.21*red + 0.72*green + 0.07*blue); 
-	}
+	 // converts a rgb image into greyscale image
+	 float CLASSIFICATION::Classification::convert_to_greyscale(float red, float green, float blue) { 
+	 	return (0.21*red + 0.72*green + 0.07*blue); 
+	 }
 
 
-	// build histogram for pixels intensities
+	//build histogram for pixels intensities
 	void CLASSIFICATION::Classification::build_histogram(const int bin_size) {
 
-		cout << "bin_size: "<< bin_size << endl;
+	// 		for(int i = 0; i < number_of_images; i++) {
+	// 		for(int j = 0; j < 1024; j++) {
+	// 		cout << images[i].greyscaleImage[j] << " ";
+	// 	} 
+	// 	cout << " " << endl << endl;
+	// }
 
-		cout << "Number of images: " << number_of_images << endl;
 
-		int histogram_bin[(image.max_value+1)/bin_size];
-		vector<int*> histogramVec;
-		
+		int max_value = 256;
+		int size = 1024;
+
 		for(int i = 0; i < number_of_images; i ++) {
-
-			histogram = new int[image.max_value+1];
-
-			// fill histogram array with zeros
-			for(int i = 0; i < image.max_value+1; i++) {
-				histogram[i] = 0;
+			images[i].histogram_bin = new int[max_value/bin_size];
+			int histogram_index = 0;
+			int histogram[max_value];
+			
+			for(int i = 0; i < max_value; i++) {
+				histogram[i] = 0; // fill histogram array with zeros
 			}
 
-			for(int j = 0; j < image.size; j++) {
-				int index = pixels_intensitiesVec[i][j]; // find index of pixel intensity in the histogram array
-				//cout << "index: " << index << " " ;
+			for(int j = 0; j < size; j++) {
+				int index = images[i].greyscaleImage[j]; // find index of pixel intensity in the histogram array
 				histogram[index] += 1; // increment appropriate location in the histogram array 
 			}
 
-			histogramVec.push_back(histogram);
-			}
-			delete[] histogram;
 
-		for(int i = 0; i < 255; i++) {
-			cout << histogramVec[0][i] << " ";
-
-		}
-			cout << "#####################################" << endl;
+			for(int x = 0; x < (max_value/bin_size); x++) {
+				int value = 0;
+				for(int y = histogram_index; y < bin_size + histogram_index; y++) {
+					value += histogram[y];
+					
+				}
 			
+				images[i].histogram_bin[x] = value;
+				histogram_index = histogram_index + bin_size; // increment histogram_index by bin_size
+
+			}
+
+			// 	for(int j = 0; j < 64; j++) {
+			// 		cout << images[i].histogram_bin[j] << " ";
+			
+			// }
+			// cout << " " << endl;
+			
+			
+			histogram_points.push_back(DataPoints(images[i])); // histogram_points size = 100(number of images) historgram_bin size = 64
+				
 		}
+
+		kMeansClusterer();
+
+	}
 
 	// write output to file
 	void CLASSIFICATION::Classification::write_output(string output_file) { cout << output_file << endl; }
+
+	void CLASSIFICATION::Classification::kMeansClusterer() {
+		//srand(time(0));
+		 vector<DataPoints> centroids; // stores centroids
+		 for(int i = 0; i < 10; i++) {
+
+		 	int random_number = rand() % 100 + 1;
+
+		 	centroids.push_back(histogram_points[random_number]); // generate random centroids
+
+		 }
+
+	 	int count = -1; // id of clusters
+		// caculate distance from centroid to data points
+		for(auto centroid_point = centroids.begin(); centroid_point != centroids.end(); centroid_point++) {
+			count++;
+			int cluster_id = count;
+
+			for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
+
+				DataPoints dataPoint = *histogram_point;
+				int distance = dataPoint.squaredDistance(*centroid_point);
+
+				if(distance < dataPoint.min_distance) {
+					dataPoint.min_distance = distance;
+					dataPoint.cluster = cluster_id;
+
+					cout << dataPoint.cluster << " " << dataPoint.points.name << endl;
+
+				}
+				*histogram_point = dataPoint;
+
+			}
+
+
+
+	}
+
+}
+
 

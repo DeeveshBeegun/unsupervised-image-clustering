@@ -15,6 +15,7 @@ namespace IMAGE {
 	int size, max_value;
 	std::string name;
 
+
 	// default constructor
 	Image(); // creates an empty image
 
@@ -53,6 +54,8 @@ namespace IMAGE {
  	int *greyscaleImage;
 
  	int *histogram_bin;
+
+
 
 	}; 
 

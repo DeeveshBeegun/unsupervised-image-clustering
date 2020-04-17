@@ -177,6 +177,13 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 			histogram_points.push_back(DataPoints(images[i])); // histogram_points size = 100(number of images) historgram_bin size = 64
 				
 		}
+		// 	for(int i = 0; i < number_of_images; i++) {
+		// for(int j = 0; j < 64; j++) {
+		// 	cout << histogram_points[i].image_point.histogram_bin[j] << " ";
+		// }
+		// cout << " " << endl << endl;
+
+	//}
 
 		kMeansClusterer();
 
@@ -197,6 +204,7 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		 }
 
 	 	int count = -1; // id of clusters
+	 	
 		// caculate distance from centroid to data points
 		for(auto centroid_point = centroids.begin(); centroid_point != centroids.end(); centroid_point++) {
 			count++;
@@ -204,24 +212,94 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 			for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
 
-				DataPoints dataPoint = *histogram_point;
+				 DataPoints dataPoint = *histogram_point;
 				int distance = dataPoint.squaredDistance(*centroid_point);
 
 				if(distance < dataPoint.min_distance) {
 					dataPoint.min_distance = distance;
 					dataPoint.cluster = cluster_id;
 
-					cout << dataPoint.cluster << " " << dataPoint.points.name << endl;
-
 				}
+
 				*histogram_point = dataPoint;
+
 
 			}
 
-
-
 	}
 
+	//DataPoints dataPoint;
+	vector<int> number_of_points;
+	vector<DataPoints> sumVec;
+	vector<DataPoints> mean;
+	int* tmp_bin = new int[64];
+
+	for(int j = 0; j < 64; j++) {
+		tmp_bin[j] = 0;
+	}
+
+	
+	for(int i = 0; i < 10; i++) {
+		DataPoints dataPoint;
+		number_of_points.push_back(0); // initialise number_of_points vector with zeros
+		sumVec.push_back(dataPoint);
+			
+	}
+
+	for(int j = 0; j < 10; j++) {
+		sumVec[j].image_point.histogram_bin = tmp_bin;
+
+	}
+	int index = -1;
+	for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
+		DataPoints point = *histogram_point;
+		index++;
+		int cluster_id = point.cluster;
+		if(cluster_id == 5) {
+		//cout << "index: " << index << " = " << cluster_id << "| ";
+	}
+
+		number_of_points[cluster_id] += 1;
+
+		sumVec[cluster_id] = sumVec[cluster_id] + point;
+
+		mean[cluster_id] = point.mean(sumVec[cluster_id], number_of_points[cluster_id]);
+		  
+	}
+
+for() {
+
 }
+
+// 	cout << "" << endl << endl;
+
+// 	int indexx = -1;
+
+// 	for(auto points = histogram_points.begin(); points != histogram_points.end(); points++) {
+// 		indexx++;
+// 				cout << "index: " << indexx << "| ";
+// 		for(int i = 0; i < 64; i++) {
+// 		DataPoints dataPoint = *points;
+
+// 		cout << dataPoint.image_point.histogram_bin[i] << " ";
+// }
+// cout << "" << endl << endl;
+
+// }
+
+
+
+// for(auto i = sumVec.begin(); i != sumVec.end(); i++) {
+// 	DataPoints dataPoint = *i;
+// 	for(int j = 0; j < 64; j++) {
+
+// 	cout << dataPoint.image_point.histogram_bin[j] << " ";
+
+// }
+// cout << " " << endl << endl;
+// }
+
+
+ }
 
 

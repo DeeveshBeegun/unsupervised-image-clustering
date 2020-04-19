@@ -12,6 +12,7 @@
 #include "DataPoints.h"
 #include <memory>
 #include <time.h>
+#include <math.h>
 
 using namespace std;
 
@@ -24,10 +25,7 @@ CLASSIFICATION::Classification::Classification() {
 }
 
 // destructor
-CLASSIFICATION::Classification::~Classification() {
-	// delete[] pixels_intensities;
-	// delete[] histogram_bin;
-}
+CLASSIFICATION::Classification::~Classification() {}
 
 // read content of directory
 void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
@@ -111,9 +109,6 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 		}
 		images.push_back(image); // populate array with the greyscale intensities
 
-		// delete[] image.pixels;
-		// delete[] image.greyscaleImage;
-
 	}
 
 	image_file.close();
@@ -128,15 +123,6 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 	//build histogram for pixels intensities
 	void CLASSIFICATION::Classification::build_histogram(const int bin_size) {
-
-	// 		for(int i = 0; i < number_of_images; i++) {
-	// 		for(int j = 0; j < 1024; j++) {
-	// 		cout << images[i].greyscaleImage[j] << " ";
-	// 	} 
-	// 	cout << " " << endl << endl;
-	// }
-
-
 		int max_value = 256;
 		int size = 1024;
 
@@ -166,24 +152,10 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 				histogram_index = histogram_index + bin_size; // increment histogram_index by bin_size
 
 			}
-
-			// 	for(int j = 0; j < 64; j++) {
-			// 		cout << images[i].histogram_bin[j] << " ";
-			
-			// }
-			// cout << " " << endl;
-			
 			
 			histogram_points.push_back(DataPoints(images[i])); // histogram_points size = 100(number of images) historgram_bin size = 64
 				
 		}
-		// 	for(int i = 0; i < number_of_images; i++) {
-		// for(int j = 0; j < 64; j++) {
-		// 	cout << histogram_points[i].image_point.histogram_bin[j] << " ";
-		// }
-		// cout << " " << endl << endl;
-
-	//}
 
 		kMeansClusterer();
 
@@ -193,113 +165,184 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 	void CLASSIFICATION::Classification::write_output(string output_file) { cout << output_file << endl; }
 
 	void CLASSIFICATION::Classification::kMeansClusterer() {
-		//srand(time(0));
+		vector<DataPoints> sumPoints;
+		vector<DataPoints> prevCentroids;
+
+		int* tmp_bin = new int[64];
+		for(int i = 0; i < 10; i++){
+			DataPoints dataPoint;
+
+			for(int j = 0; j < 64; j++)
+				tmp_bin[j] = 0;
+
+			for(int j = 0; j < 64; j++) {
+				dataPoint.image_point.histogram_bin= tmp_bin;
+			}
+
+				prevCentroids.push_back(dataPoint);
+		}
+
+		DataPoints dataPoint;
+
+		srand(time(0)); // randomize the assignment of random numbers
 		 vector<DataPoints> centroids; // stores centroids
 		 for(int i = 0; i < 10; i++) {
-
-		 	int random_number = rand() % 100 + 1;
-
-		 	centroids.push_back(histogram_points[random_number]); // generate random centroids
+		 	int random_number = rand() % 100; // generate random number between 0 to 99
+	 		centroids.push_back(histogram_points[random_number]); // generate random centroids
 
 		 }
 
-	 	int count = -1; // id of clusters
-	 	
-		// caculate distance from centroid to data points
+		assign_clusterId(centroids, histogram_points); // assign cluster_id to points
+
+	int times = 0;
+	bool mean_not_same = true;
+	while(mean_not_same) {
+		vector<int> number_of_points; // number of points in a specific cluster
+		sumPoints = sum_of_points(histogram_points, number_of_points);
+		//printVector(sumPoints);
+		times++;
+		int count = -1;
+
+		if (dataPoint.check_if_equal(prevCentroids, centroids) == true) {
+			mean_not_same = false;
+		}
+		//cout << dataPoint.check_if_equal(prevCentroids, centroids);
+		
 		for(auto centroid_point = centroids.begin(); centroid_point != centroids.end(); centroid_point++) {
+			DataPoints dataPoint = *centroid_point;
 			count++;
 			int cluster_id = count;
+			prevCentroids.push_back(dataPoint);
 
-			for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
+			*centroid_point = dataPoint.mean(sumPoints, number_of_points[cluster_id], cluster_id);
 
-				 DataPoints dataPoint = *histogram_point;
-				int distance = dataPoint.squaredDistance(*centroid_point);
+		}
+		
+		cout << "" << endl;
 
-				if(distance < dataPoint.min_distance) {
-					dataPoint.min_distance = distance;
-					dataPoint.cluster = cluster_id;
+		printVector(prevCentroids);
 
-				}
+		assign_clusterId(centroids, histogram_points);
+		//printVector(centroids);
+	
+	}
 
-				*histogram_point = dataPoint;
+	cout << "times: " << times << endl;
+	//printing clusters
+vector<vector<DataPoints> > clusters;
+int id_cluster = -1;
 
+for(int i = 0; i < 10; i++) {
+	id_cluster++;
+	vector<DataPoints> cluster;
+	for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
+		DataPoints dataPoints = *histogram_point;
+		int cluster_id = dataPoints.cluster;
+		
+		if(id_cluster == cluster_id) {
+			cluster.push_back(dataPoints);
+		}
+
+	
+}
+
+clusters.push_back(cluster);
+}
+
+
+for(int i = 0; i < clusters.size(); i++) {
+	cout << "cluster " << i << ": ";
+	for(int j = 0; j < clusters[i].size(); j++) {
+		cout << clusters[i][j].image_point.name << " ";
+	}
+	cout << "" << endl;
+
+}
+
+// printing clusters
+
+
+
+
+
+}
+
+
+ void CLASSIFICATION::Classification::assign_clusterId(vector<DataPoints> &centroids, vector<DataPoints> &histogram_points) {
+ 	int count = -1; // id of clusters
+
+	// caculate distance from centroid to data points
+	for(auto centroid_point = centroids.begin(); centroid_point != centroids.end(); centroid_point++) {
+		count++;
+		int cluster_id = count;
+
+		for(auto point = histogram_points.begin(); point != histogram_points.end(); point++) {
+
+			 DataPoints dataPoint = *point;
+			int distance = dataPoint.squaredDistance(*centroid_point);
+
+			if(distance < dataPoint.min_distance) {
+				dataPoint.min_distance = distance;
+				dataPoint.cluster = cluster_id;
+				
 
 			}
 
+			*point = dataPoint;
+
+
+		}
+
 	}
 
-	//DataPoints dataPoint;
-	vector<int> number_of_points;
-	vector<DataPoints> sumVec;
-	vector<DataPoints> mean;
+ }
+
+ vector<DataPoints> CLASSIFICATION::Classification::sum_of_points(vector<DataPoints> &histogram_points, vector<int> &number_of_points) {
+	vector<DataPoints> sumVec; // sum of all points in a cluster
+	number_of_points.clear();
+
 	int* tmp_bin = new int[64];
 
 	for(int j = 0; j < 64; j++) {
 		tmp_bin[j] = 0;
 	}
 
-	
 	for(int i = 0; i < 10; i++) {
 		DataPoints dataPoint;
 		number_of_points.push_back(0); // initialise number_of_points vector with zeros
 		sumVec.push_back(dataPoint);
-			
-	}
-
-	for(int j = 0; j < 10; j++) {
-		sumVec[j].image_point.histogram_bin = tmp_bin;
+		sumVec[i].image_point.histogram_bin = tmp_bin;
 
 	}
-	int index = -1;
+
+	int count = -1;
 	for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
 		DataPoints point = *histogram_point;
-		index++;
+		count++;
 		int cluster_id = point.cluster;
-		if(cluster_id == 5) {
-		//cout << "index: " << index << " = " << cluster_id << "| ";
-	}
 
 		number_of_points[cluster_id] += 1;
-
 		sumVec[cluster_id] = sumVec[cluster_id] + point;
 
-		mean[cluster_id] = point.mean(sumVec[cluster_id], number_of_points[cluster_id]);
-		  
-	}
+		histogram_point -> min_distance = INFINITY; // reset the distance of the points to infinity
 
-for() {
-
+	
 }
+return sumVec;
 
-// 	cout << "" << endl << endl;
+ }
 
-// 	int indexx = -1;
-
-// 	for(auto points = histogram_points.begin(); points != histogram_points.end(); points++) {
-// 		indexx++;
-// 				cout << "index: " << indexx << "| ";
-// 		for(int i = 0; i < 64; i++) {
-// 		DataPoints dataPoint = *points;
-
-// 		cout << dataPoint.image_point.histogram_bin[i] << " ";
-// }
-// cout << "" << endl << endl;
-
-// }
-
-
-
-// for(auto i = sumVec.begin(); i != sumVec.end(); i++) {
-// 	DataPoints dataPoint = *i;
-// 	for(int j = 0; j < 64; j++) {
-
-// 	cout << dataPoint.image_point.histogram_bin[j] << " ";
-
-// }
-// cout << " " << endl << endl;
-// }
-
-
+ void CLASSIFICATION::Classification::printVector(vector<DataPoints> dataPoints) {
+	int count = -1;
+	 	for(auto points = dataPoints.begin(); points != dataPoints.end(); points++) {
+	 		count ++;
+	 		cout << count << ": ";
+	 		 for(int i = 0; i < 64; i++) {
+	 		DataPoints dataPoints = *points;
+	 		cout << dataPoints.image_point.histogram_bin[i] << " ";
+	 	}
+	 	cout << "" << endl;
+	 }
  }
 
 

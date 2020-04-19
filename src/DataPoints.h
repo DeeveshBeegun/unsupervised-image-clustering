@@ -26,8 +26,10 @@ struct DataPoints {
 	// overload the + operator to add two DataPoints object
 	DataPoints operator+(DataPoints point);
 
-	// overload the / operator to calculate the mean of the clusters
-	DataPoints operator/(DataPoints point);
+	// mean of the sum of points in a cluster
+	DataPoints mean(std::vector<DataPoints> sumVec, int number_of_points, int cluster_id);
+
+	bool check_if_equal(std::vector<DataPoints> &prevCentroids, std::vector<DataPoints> &centroids);
 
 	// // calculates the mean of points near the cluster
 	// int  mean_of_cluster(std::vector<DataPoints> dataPoints);

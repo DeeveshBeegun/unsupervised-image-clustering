@@ -43,6 +43,12 @@ namespace CLASSIFICATION {
 		// clusters the data into different cluster centroids
 		void kMeansClusterer();
 
+		void assign_clusterId(std::vector<DataPoints> &centroids, std::vector<DataPoints> &histogram_point);
+
+		std::vector<DataPoints> sum_of_points(std::vector<DataPoints> &dataPoints, std::vector<int> &number_of_points);
+
+		void printVector(std::vector<DataPoints> dataPoints);
+
 
 
 	};

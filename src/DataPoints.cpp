@@ -32,9 +32,23 @@ DataPoints DataPoints::operator+(DataPoints point) {
 	return dataPoints;
 }
 
-DataPoints DataPoints::mean(vector<DataPoints> sumVec, vector<int> number_of_points) {
-	DataPoints dataPoints;
+bool DataPoints::check_if_equal(vector<DataPoints> &prevCentroids, vector<DataPoints> &centroids) {
+	int countTrue = 0;
+	for(int j = 0; j < 10; j++) {
+    for (int i = 0; i < 64; i++) 
+        if (prevCentroids[j].image_point.histogram_bin[i] == centroids[j].image_point.histogram_bin[i]) 
+            countTrue++;
+	}
+	prevCentroids.clear();
+	if(countTrue == 640) {
+		return true;
+	}
+	return false;
+}
 
+DataPoints DataPoints::mean(vector<DataPoints> sumVec, int number_of_points, int cluster_id) {
+	DataPoints dataPoints;
+	int* tmp_bin = new int[64];
 
 	for(int j = 0; j < 64; j++) {
 		tmp_bin[j] = 0;
@@ -43,7 +57,14 @@ DataPoints DataPoints::mean(vector<DataPoints> sumVec, vector<int> number_of_poi
 		dataPoints.image_point.histogram_bin= tmp_bin;
 	}
 	for (int i = 0; i < 64; i++) {
-		dataPoints.image_point.histogram_bin[] = this->image_point.histogram_bin[i]/number_of_points[cluster_id];
+
+	if(number_of_points == 0) {
+		dataPoints.image_point.histogram_bin[i] = 0;
+	}
+	else {
+		dataPoints.image_point.histogram_bin[i] = sumVec[cluster_id].image_point.histogram_bin[i]/number_of_points;
+	}
+
 	}
 
 	return dataPoints;

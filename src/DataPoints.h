@@ -33,8 +33,8 @@ struct DataPoints {
 
 	// // calculates the mean of points near the cluster
 	// int  mean_of_cluster(std::vector<DataPoints> dataPoints);
-
-	// friend ostream& operator<<(ostream& os, DataPoints dataPoints);
+	friend std::ostream& operator<<(std::ostream& os, const std::vector<DataPoints> &dataPoints);
 };
+
 
 #endif

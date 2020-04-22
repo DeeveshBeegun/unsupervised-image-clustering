@@ -38,10 +38,12 @@ namespace CLASSIFICATION {
 		void build_histogram(const int bin_size);
 
 		// write output to file
-		void write_output(std::string output_file);
+		void write_output_toFile(std::vector<DataPoints> dataPoints, std::string output_file);
 
 		// clusters the data into different cluster centroids
-		void kMeansClusterer();
+		void kMeansClusterer(int number_of_clusters);
+
+		void kMeansClusterer(int number_of_clusters, std::string output_file);
 
 		void assign_clusterId(std::vector<DataPoints> &centroids, std::vector<DataPoints> &histogram_point);
 

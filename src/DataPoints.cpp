@@ -3,6 +3,7 @@
 #include <vector>
 #include "DataPoints.h"
 #include "Image.h"
+#include <string>
 
 
 using namespace std;
@@ -72,26 +73,44 @@ DataPoints DataPoints::mean(vector<DataPoints> sumVec, int number_of_points, int
 
 }
 
-// int DataPoints::mean_of_cluster(DataPoints dataPoints) {
-// 	vector<int> number_of_points;
-// 	vector<DataPoints> mean;
+ ostream& operator<<(ostream& output, const vector<DataPoints> &histogram_points) {
 
-// for (int i = 0; i < 64; i++) {
-// 	for(auto point = dataPoints.begin(); point != dataPoints.end(); point++) {
-// 		DataPoints histogram_point = *point;
+	//printing clusters
+	vector<vector<DataPoints> > clusters;
+	int id_cluster = -1;
 
-// 		int cluster_id = histogram_point.cluster;
-// 		number_of_points[cluster_id] += 1;
+		for(int i = 0; i < 10; i++) {
+			id_cluster++;
+			vector<DataPoints> cluster;
+			for(auto histogram_point = histogram_points.begin(); histogram_point != histogram_points.end(); histogram_point++) {
+				DataPoints dataPoints = *histogram_point;
+				int cluster_id = dataPoints.cluster;
+				
+				if(id_cluster == cluster_id) {
+					cluster.push_back(dataPoints);
+				}
+		}
 
-// 		//sum[cluster_id].image_point.histogram_bin[i] += histogram_point.image_point.histogram_bin[i];
+	clusters.push_back(cluster);
+	}
 
-// 	}
-// 	//mean[cluster_id].image_point.histogram_bin[i] /= number_of_points[cluster_id]
-// }
-// //return sum;
-// }
+	string output_clusters = "";
+
+	for(int i = 0; i < clusters.size(); i++) {
+		output_clusters +="cluster " + to_string(i) + ": ";
+		for(int j = 0; j < clusters[i].size(); j++) {
+			output_clusters += clusters[i][j].image_point.name;
+			output_clusters += " ";
+		}
+		output_clusters += '\n';
+
+	}
+
+	output << output_clusters;
+
+	// printing clusters
+		
+	return output;
+}
 
 
-// ostream& DataPoints::operator<<(ostream& os, DataPoints dataPoints) {
-// 	os << dataPoints.cluster << " " << dataPoints.points.name << endl;
-// }

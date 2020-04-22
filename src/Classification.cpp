@@ -102,10 +102,14 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 			image_file.read((char *)pixel_float, 3);
 
 			image.pixels[i].red = pixel_float[0];
+			//cout << "red: " << image.pixels[i].red << endl;
 			image.pixels[i].green = pixel_float[1];
+			//cout << "green: " << image.pixels[i].green << endl;
 			image.pixels[i].blue = pixel_float[2];
+			//cout << "blue: " << image.pixels[i].blue << endl;
 
 			image.greyscaleImage[i] = convert_to_greyscale(image.pixels[i].red, image.pixels[i].green, image.pixels[i].blue);
+			//cout << "grey: " << image.greyscaleImage[i] << endl;
 
 		}
 		images.push_back(image); // populate array with the greyscale intensities
@@ -123,7 +127,7 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 
 	//build histogram for pixels intensities
-	void CLASSIFICATION::Classification::build_histogram(const int bin_size) {
+	void CLASSIFICATION::Classification::build_histogram(const int bin_size, bool colour) {
 		int max_value = 256;
 		int size = 1024;
 
@@ -136,10 +140,27 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 				histogram[i] = 0; // fill histogram array with zeros
 			}
 
+		if(colour == false) {
 			for(int j = 0; j < size; j++) {
 				int index = images[i].greyscaleImage[j]; // find index of pixel intensity in the histogram array
 				histogram[index] += 1; // increment appropriate location in the histogram array 
 			}
+		}
+		else {
+				for(int j = 0; j < size; j++) {
+
+				int red_index = images[i].pixels[j].red;
+				histogram[red_index] += 1;
+
+				int green_index = images[i].pixels[j].green;
+				histogram[green_index] += 1;
+
+				int blue_index = images[i].pixels[j].blue;
+				histogram[blue_index] += 1;
+
+			}
+
+		}
 
 
 			for(int x = 0; x < (max_value/bin_size); x++) {
@@ -158,8 +179,8 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 				
 		}
 
-
 	}
+
 
 	// write output to file
 	void CLASSIFICATION::Classification::write_output_toFile(vector<DataPoints> histogram_points, string output_file) { 
@@ -172,7 +193,7 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 	}
 
-	void CLASSIFICATION::Classification::kMeansClusterer(int number_of_clusters) {
+	void CLASSIFICATION::Classification::kMeansClusterer() {
 		vector<DataPoints> sumPoints;
 		vector<DataPoints> prevCentroids;
 
@@ -231,65 +252,65 @@ void CLASSIFICATION::Classification::readImages(const string &image_name, const 
 
 
 }
-	void CLASSIFICATION::Classification::kMeansClusterer(int number_of_clusters, string output_file) {
-		vector<DataPoints> sumPoints;
-		vector<DataPoints> prevCentroids;
+// 	void CLASSIFICATION::Classification::kMeansClusterer(int number_of_clusters, string output_file) {
+// 		vector<DataPoints> sumPoints;
+// 		vector<DataPoints> prevCentroids;
 
-		int* tmp_bin = new int[64];
-		for(int i = 0; i < 10; i++){
-			DataPoints dataPoint;
+// 		int* tmp_bin = new int[64];
+// 		for(int i = 0; i < 10; i++){
+// 			DataPoints dataPoint;
 
-			for(int j = 0; j < 64; j++)
-				tmp_bin[j] = 0;
+// 			for(int j = 0; j < 64; j++)
+// 				tmp_bin[j] = 0;
 
-			for(int j = 0; j < 64; j++) {
-				dataPoint.image_point.histogram_bin= tmp_bin;
-			}
+// 			for(int j = 0; j < 64; j++) {
+// 				dataPoint.image_point.histogram_bin= tmp_bin;
+// 			}
 
-				prevCentroids.push_back(dataPoint);
-		}
+// 				prevCentroids.push_back(dataPoint);
+// 		}
 
-		DataPoints dataPoint;
+// 		DataPoints dataPoint;
 
-		srand(time(0)); // randomize the assignment of random numbers
-		 vector<DataPoints> centroids; // stores centroids
-		 for(int i = 0; i < 10; i++) {
-		 	int random_number = rand() % 100; // generate random number between 0 to 99
-	 		centroids.push_back(histogram_points[random_number]); // generate random centroids
+// 		srand(time(0)); // randomize the assignment of random numbers
+// 		 vector<DataPoints> centroids; // stores centroids
+// 		 for(int i = 0; i < 10; i++) {
+// 		 	int random_number = rand() % 100; // generate random number between 0 to 99
+// 	 		centroids.push_back(histogram_points[random_number]); // generate random centroids
 
-		 }
+// 		 }
 
-		assign_clusterId(centroids, histogram_points); // assign cluster_id to points
+// 		assign_clusterId(centroids, histogram_points); // assign cluster_id to points
 
-	int times = 0;
-	bool mean_not_same = true;
-	while(mean_not_same) {
-		vector<int> number_of_points; // number of points in a specific cluster
-		sumPoints = sum_of_points(histogram_points, number_of_points);
-		int count = -1;
+// 	int times = 0;
+// 	bool mean_not_same = true;
+// 	while(mean_not_same) {
+// 		vector<int> number_of_points; // number of points in a specific cluster
+// 		sumPoints = sum_of_points(histogram_points, number_of_points);
+// 		int count = -1;
 
-		if (dataPoint.check_if_equal(prevCentroids, centroids) == true) {
-			mean_not_same = false;
-		}
+// 		if (dataPoint.check_if_equal(prevCentroids, centroids) == true) {
+// 			mean_not_same = false;
+// 		}
 		
-		for(auto centroid_point = centroids.begin(); centroid_point != centroids.end(); centroid_point++) {
-			DataPoints dataPoint = *centroid_point;
-			count++;
-			int cluster_id = count;
-			prevCentroids.push_back(dataPoint);
+// 		for(auto centroid_point = centroids.begin(); centroid_point != centroids.end(); centroid_point++) {
+// 			DataPoints dataPoint = *centroid_point;
+// 			count++;
+// 			int cluster_id = count;
+// 			prevCentroids.push_back(dataPoint);
 
-			*centroid_point = dataPoint.mean(sumPoints, number_of_points[cluster_id], cluster_id);
+// 			*centroid_point = dataPoint.mean(sumPoints, number_of_points[cluster_id], cluster_id);
 
-		}
+// 		}
 
-		assign_clusterId(centroids, histogram_points);
+// 		assign_clusterId(centroids, histogram_points);
 	
-	} 
+// 	} 
 
-	write_output_toFile(histogram_points, output_file);
+// 	cout << histogram_points << endl;
 
 
-}
+// }
 
  void CLASSIFICATION::Classification::assign_clusterId(vector<DataPoints> &centroids, vector<DataPoints> &histogram_points) {
  	int count = -1; // id of clusters

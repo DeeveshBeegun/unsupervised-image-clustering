@@ -35,15 +35,15 @@ namespace CLASSIFICATION {
 		float convert_to_greyscale(float red, float green, float blue);
 
 		// build histogram representation
-		void build_histogram(const int bin_size);
+		void build_histogram(const int bin_size, bool colour);
 
 		// write output to file
 		void write_output_toFile(std::vector<DataPoints> dataPoints, std::string output_file);
 
 		// clusters the data into different cluster centroids
-		void kMeansClusterer(int number_of_clusters);
+		void kMeansClusterer();
 
-		void kMeansClusterer(int number_of_clusters, std::string output_file);
+		//void kMeansClusterer(int number_of_clusters, std::string output_file);
 
 		void assign_clusterId(std::vector<DataPoints> &centroids, std::vector<DataPoints> &histogram_point);
 

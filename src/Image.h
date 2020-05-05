@@ -47,13 +47,11 @@ namespace IMAGE {
 
  	};
 
- 	const Rgb &operator [] (const unsigned int &i);
+ 	Rgb &operator [] (const unsigned int &i) const;
 
  	Rgb *pixels;
 
- 	int *greyscaleImage;
-
- 	int *histogram_bin;
+ 	int *greyscaleImage, *histogram_bin;
 
 
 

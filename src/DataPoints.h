@@ -6,10 +6,12 @@
 #ifndef _DATAPOINTS_H
 #define _DATAPOINTS_H
 
-struct DataPoints {
+class DataPoints {
+public:
 	IMAGE::Image image_point;
-	int cluster; // cluster id/name
 	double min_distance; // minimum distance between centroid and points
+	int histogram_binSize, cluster;
+	int number_of_clusters = 0;
 	
 	//default constuctor
 	DataPoints():image_point(), cluster(-1), min_distance(INFINITY) {};
@@ -17,22 +19,18 @@ struct DataPoints {
 	// constructor
 	DataPoints(IMAGE::Image histogram_points):image_point(histogram_points), cluster(-1), min_distance(INFINITY) {};
 	
-	// calculates the square distance between two points(histogram)
-	int squaredDistance(DataPoints vector_points);
-
-	// calculates the sum of all the histogram_bin in the cluster
-	DataPoints sum(std::vector<DataPoints> histogram_points, int cluster_id);
+	// calculates the square distance between two points (histograms)
+	int squaredDistance(const DataPoints &dataPoints) const;
 
 	// overload the + operator to add two DataPoints object
-	DataPoints operator+(DataPoints point);
+	DataPoints operator+(const DataPoints &point) const;
 
 	// mean of the sum of points in a cluster
-	DataPoints mean(std::vector<DataPoints> sumVec, int number_of_points, int cluster_id);
+	DataPoints mean(const std::vector<DataPoints> &sumVec, const int &number_of_points, const int &cluster_id) const;
 
-	bool check_if_equal(std::vector<DataPoints> &prevCentroids, std::vector<DataPoints> &centroids);
+	bool check_if_equal(std::vector<DataPoints> &prevCentroids, const std::vector<DataPoints> &centroids) const;
 
-	// // calculates the mean of points near the cluster
-	// int  mean_of_cluster(std::vector<DataPoints> dataPoints);
+	// output to terminal 
 	friend std::ostream& operator<<(std::ostream& os, const std::vector<DataPoints> &dataPoints);
 };
 

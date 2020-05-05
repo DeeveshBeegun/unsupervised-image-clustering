@@ -15,11 +15,9 @@ IMAGE::Image::Image(const unsigned int &rows, const unsigned int &cols): width(r
 
 // destructor
 IMAGE::Image::~Image() {
-	//if(pixels != NULL) 
-		//delete [] pixels;
 }
 
 // overloads the [] operator
-const IMAGE::Image::Rgb &IMAGE::Image::operator [] (const unsigned int &i) {
+IMAGE::Image::Rgb &IMAGE::Image::operator [] (const unsigned int &i) const{
 	return pixels[i];
 }

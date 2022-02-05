@@ -1,10 +1,17 @@
 # Do not track the content of these folders
-dataset
+Gradient_Numbers_PPMS/
+clusterer
 
 
 
-# Do not tract these compiled source
+
+# Do not track these compiled source
 
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.o
+*.exe
+*.ppm
+*.gch
+*.txt

@@ -21,7 +21,6 @@ namespace CLASSIFICATION {
 			std::vector<DataPoints> histogram_points;
 			std::vector<std::string> imageFiles;
 			std::unique_ptr<int []> histogram_bin;
-			int* tmp_bin;
 			int number_of_images, max_value, image_size, binSize, clustersNumber;
 	
 	

@@ -20,13 +20,10 @@ using namespace std;
 // constructor
 CLASSIFICATION::Classification::Classification():number_of_images(0), max_value(0), image_size(0), binSize(0), 
 clustersNumber(0), histogram_bin(nullptr) 
- {
-
-}
+ {}
 
 // destructor
-CLASSIFICATION::Classification::~Classification() {
-}
+CLASSIFICATION::Classification::~Classification() {}
 
 // read content of directory
 void CLASSIFICATION::Classification::readDataset(const string &directory_name) {
